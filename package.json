@@ -1,0 +1,20 @@
+{
+  "name": "prisma-data-migrations",
+  "version": "0.0.1",
+  "main": "dist/main.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Softjey/prisma-data-migrations.git"
+  },
+  "author": "Softjey",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Softjey/prisma-data-migrations/issues"
+  },
+  "homepage": "https://github.com/Softjey/prisma-data-migrations#readme",
+  "description": "",
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}
