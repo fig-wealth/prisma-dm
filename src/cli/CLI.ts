@@ -28,8 +28,8 @@ export class CLI {
       const migrationPath = path.join(migrationsDirPath, migrationName);
 
       if (Validator.isDataMigrationDir(migrationPath)) {
-        const outputPath = path.join(config.outputDir, migrationName);
         const schemaPath = path.join(migrationPath, "schema.prisma");
+        const outputPath = `${config.outputDir}/${migrationName}`;
 
         console.log(`Generating types for migration: ${migrationName}`);
         updateOrAddOutputInSchema(schemaPath, outputPath);
