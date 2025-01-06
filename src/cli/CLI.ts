@@ -4,6 +4,8 @@ import { CONFIG_FILE_NAME } from "../constants/CONFIG_FILE_NAME";
 import { getConfig } from "../utils/getConfig";
 import { DEFAULT_CONFIG } from "../constants/DEFAULT_CONFIG";
 import { Validator } from "../utils/Validator";
+import { PrismaCLI } from "./PrismaCLI";
+import { updateOrAddOutputInSchema } from "../utils/updateOrAddOutputInSchema";
 
 export class CLI {
   init() {
@@ -26,7 +28,12 @@ export class CLI {
       const migrationPath = path.join(migrationsDirPath, migrationName);
 
       if (Validator.isDataMigrationDir(migrationPath)) {
+        const outputPath = path.join(config.outputDir, migrationName);
+        const schemaPath = path.join(migrationPath, "schema.prisma");
+
         console.log(`Generating types for migration: ${migrationName}`);
+        updateOrAddOutputInSchema(schemaPath, outputPath);
+        PrismaCLI.generate({ schema: schemaPath });
       }
     }
   }
