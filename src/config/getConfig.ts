@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs-extra";
-import { Config } from "../types/config";
-import { CONFIG_FILE_NAME } from "../constants/CONFIG_FILE_NAME";
+import { Config } from "./config.type";
+import { CONFIG_FILE_NAME } from "./CONFIG_FILE_NAME";
 
 export function getConfig(): Config {
   try {
