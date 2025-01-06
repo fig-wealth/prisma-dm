@@ -7,4 +7,8 @@ export abstract class PrismaCLI {
 
     execSync(`${baseCommand} ${schemaFlag}`, { stdio: "inherit" });
   }
+
+  static migrateDeploy() {
+    execSync("npx prisma migrate deploy", { stdio: "inherit" });
+  }
 }
