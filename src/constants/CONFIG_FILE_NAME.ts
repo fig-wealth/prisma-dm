@@ -1,0 +1,1 @@
+export const CONFIG_FILE_NAME = "prisma-dm.config.json";
