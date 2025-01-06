@@ -1,0 +1,33 @@
+import path from "path";
+import fs from "fs-extra";
+import { CONFIG_FILE_NAME } from "../constants/CONFIG_FILE_NAME";
+import { getConfig } from "../utils/getConfig";
+import { DEFAULT_CONFIG } from "../constants/DEFAULT_CONFIG";
+import { Validator } from "../utils/Validator";
+
+export class CLI {
+  init() {
+    const configFilePath = path.join(process.cwd(), CONFIG_FILE_NAME);
+
+    if (fs.existsSync(configFilePath)) {
+      console.error("Config file already exists");
+      process.exit(1);
+    }
+
+    fs.writeFileSync(configFilePath, JSON.stringify(DEFAULT_CONFIG, null, 2));
+  }
+
+  generate() {
+    const config = getConfig();
+    const migrationsDirPath = path.join(process.cwd(), config.migrationsDir);
+    const migrationsDir = fs.readdirSync(migrationsDirPath);
+
+    for (const migrationName of migrationsDir) {
+      const migrationPath = path.join(migrationsDirPath, migrationName);
+
+      if (Validator.isDataMigrationDir(migrationPath)) {
+        console.log(`Generating types for migration: ${migrationName}`);
+      }
+    }
+  }
+}
