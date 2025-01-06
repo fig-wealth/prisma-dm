@@ -3,7 +3,7 @@ import fs from "fs-extra";
 import { CONFIG_FILE_NAME } from "../constants/CONFIG_FILE_NAME";
 import { getConfig } from "../utils/getConfig";
 import { DEFAULT_CONFIG } from "../constants/DEFAULT_CONFIG";
-import { Validator } from "../utils/Validator";
+import { Validator } from "./Validator";
 import { PrismaCLI } from "./PrismaCLI";
 import { updateOrAddOutputInSchema } from "../utils/updateOrAddOutputInSchema";
 

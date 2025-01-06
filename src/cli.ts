@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { CLI } from "./cli/CLI";
+import { CLI } from "./services/CLI";
 
 const args = process.argv.slice(2);
 
