@@ -1,7 +1,8 @@
 export type Config = {
-  typescript: boolean;
+  scriptExt: string;
+  scriptExecutor: string;
   migrationsDir: string;
   outputDir: string;
   tempDir: string;
-  log?: boolean;
+  log: boolean;
 };
