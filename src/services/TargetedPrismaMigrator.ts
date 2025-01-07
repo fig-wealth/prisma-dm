@@ -1,30 +1,17 @@
 import path from "path";
 import fs from "fs-extra";
-import { execSync } from "child_process";
-import { Config } from "../types/config";
-import { getConfig } from "../utils/getConfig";
+import { Config } from "../config/config.type";
+import { getConfig } from "../config/getConfig";
+import { PrismaCLI } from "./PrismaCLI";
+import { Logger } from "./Logger";
 
 type MigrationDirFile<T extends string> = T | "migration_lock.toml";
 
 export class TargetedPrismaMigrator<T extends string> {
   private readonly config: Config;
 
-  constructor() {
+  constructor(private readonly logger: Logger) {
     this.config = getConfig();
-  }
-
-  private logMessage(message: string) {
-    if (this.config.log) {
-      console.info(message);
-    }
-  }
-
-  private exec(cmd: string) {
-    return execSync(cmd, { stdio: "inherit" });
-  }
-
-  private execPrismaMigrateDeploy() {
-    this.exec("npx prisma migrate deploy");
   }
 
   private createTempDir() {
@@ -90,23 +77,25 @@ export class TargetedPrismaMigrator<T extends string> {
       -1
     ) as T[];
 
-    this.logMessage("Creating temp dir...");
+    this.logger.logMessage("Creating temp dir...");
     await this.createTempDir();
 
-    this.logMessage("Moving migrations files to temp dir...");
+    this.logger.logMessage("Moving migrations files to temp dir...");
     await this.moveFilesToTempDir(filesToMove);
 
     try {
-      this.execPrismaMigrateDeploy();
+      PrismaCLI.migrateDeploy();
 
-      this.logMessage(
+      this.logger.logMessage(
         `All migrations to ${targetMigration} have been applied successfully!`
       );
     } finally {
-      this.logMessage("Moving migrations files back to migrations dir...");
+      this.logger.logMessage(
+        "Moving migrations files back to migrations dir..."
+      );
       await this.moveFilesBackToMigrationsDir(filesToMove);
 
-      this.logMessage("Removing temp dir...");
+      this.logger.logMessage("Removing temp dir...");
       await this.removeTempDir();
     }
   }
