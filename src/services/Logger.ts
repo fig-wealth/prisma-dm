@@ -1,12 +1,11 @@
+import { Config } from "../config/config.type";
 import { getConfig } from "../config/getConfig";
 
 export class Logger {
-  constructor() {}
+  constructor(private readonly config: Config) {}
 
   logMessage(message: string) {
-    const config = getConfig();
-
-    if (config.log) {
+    if (this.config.log) {
       console.info(message);
     }
   }

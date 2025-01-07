@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs-extra";
 import { Config } from "../config/config.type";
 import { getConfig } from "../config/getConfig";
-import { PrismaCLI } from "./PrismaCLI";
+import { PrismaCLI } from "../utils/classes/PrismaCLI";
 import { Logger } from "./Logger";
 
 type MigrationDirFile<T extends string> = T | "migration_lock.toml";

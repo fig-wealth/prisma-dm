@@ -1,12 +1,13 @@
 import { execSync } from "child_process";
-import { getConfig } from "../config/getConfig";
+import { Config } from "../config/config.type";
 
-export abstract class ScriptRunner {
-  static run(fileName: string) {
-    const config = getConfig();
+export class ScriptRunner {
+  constructor(private readonly config: Config) {}
 
-    execSync(`${config.scriptExecutor} ${fileName}.${config.scriptExt}`, {
-      stdio: "inherit",
-    });
+  run(fileName: string) {
+    execSync(
+      `${this.config.scriptExecutor} ${fileName}.${this.config.scriptExt}`,
+      { stdio: "inherit" }
+    );
   }
 }
