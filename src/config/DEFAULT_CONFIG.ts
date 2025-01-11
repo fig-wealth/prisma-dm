@@ -7,5 +7,5 @@ export const DEFAULT_CONFIG: Config = {
   outputDir: "../../../node_modules/prisma-data-migrations/migrations",
   migrationsDir: "prisma/migrations",
   tempDir: "prisma/.temp",
-  log: true,
+  log: "info",
 };
