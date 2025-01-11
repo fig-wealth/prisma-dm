@@ -3,40 +3,65 @@
 import { getConfig } from "./config/getConfig";
 import { CLI } from "./services/CLI";
 import { Logger } from "./services/Logger";
-import { PrismaService } from "./services/PrismaService";
+import { DB } from "./services/DB";
 import { ScriptRunner } from "./services/ScriptRunner";
 import { TargetedPrismaMigrator } from "./services/TargetedPrismaMigrator";
 import { Validator } from "./services/Validator";
+import { Command } from "commander";
+import dotenv from "dotenv";
 
-const args = process.argv.slice(2);
+dotenv.config();
 
-if (args.length === 0) {
-  console.log("Usage: prisma-dm <command>");
-  console.log("Available commands:");
-  console.log("  init - Initialize config file");
-  console.log("  generate - generate types");
-  process.exit(1);
+const program = new Command();
+
+function createCLI() {
+  const config = getConfig();
+  const logger = new Logger(config);
+  const prisma = new DB();
+  const validator = new Validator(config);
+  const scriptRunner = new ScriptRunner(config);
+  const migrator = new TargetedPrismaMigrator(logger);
+  const cli = new CLI(migrator, scriptRunner, prisma, validator, logger);
+
+  return cli;
 }
 
-if (args[0] === "init") {
-  CLI.init();
+program
+  .name("prisma-dm")
+  .description("CLI for Prisma data management")
+  .version("1.0.0");
 
-  process.exit(0);
-}
+program
+  .command("init")
+  .description("Initialize config file")
+  .action(() => {
+    CLI.init();
+  });
 
-const config = getConfig();
-const logger = new Logger(config);
-const prisma = new PrismaService();
-const validator = new Validator(config);
-const scriptRunner = new ScriptRunner(config);
-const migrator = new TargetedPrismaMigrator(logger);
-const cli = new CLI(migrator, scriptRunner, prisma, validator, logger);
-const command = args[0];
+program
+  .command("generate")
+  .description("Generate types")
+  .action(() => {
+    createCLI().generate();
+  });
 
-console.log(`Running command: ${command}`);
+program
+  .command("migrate")
+  .description("Data migration")
+  .option("--to <value>", "Target migration")
+  .action((options) => {
+    const toValue = options.to as string | undefined;
 
-if (command in cli) {
-  cli[command]();
-} else {
-  console.error(`Unknown command: ${command}`);
+    createCLI().migrate({ to: toValue });
+  });
+
+program.on("command:*", () => {
+  console.error("Unknown command: %s", program.args.join(" "));
+  program.help();
+});
+
+program.parse(process.argv);
+
+if (!process.argv.slice(2).length) {
+  program.help();
 }
