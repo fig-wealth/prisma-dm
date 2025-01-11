@@ -5,7 +5,7 @@ export abstract class PrismaCLI {
     const baseCommand = "npx prisma generate";
     const schemaFlag = `--schema=${schema}`;
 
-    execSync(`${baseCommand} ${schemaFlag}`, { stdio: "inherit" });
+    execSync(`${baseCommand} ${schemaFlag}`, { stdio: "ignore" });
   }
 
   static migrateDeploy() {

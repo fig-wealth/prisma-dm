@@ -42,9 +42,7 @@ export class CLI<T extends string> {
         const schemaPath = path.join(migrationPath, "schema.prisma");
         const outputPath = `${config.outputDir}/${migrationName}`;
 
-        this.logger.logMessage(
-          `Generating types for migration: ${migrationName}`
-        );
+        this.logger.logInfo(`Generating types for migration: ${migrationName}`);
         updateOrAddOutputInSchema(schemaPath, outputPath);
         PrismaCLI.generate({ schema: schemaPath });
       }
@@ -87,7 +85,7 @@ export class CLI<T extends string> {
       const newMigrationAppliedCount = newMigration?.applied_steps_count ?? 0;
 
       if (migrationAppliedCount + 1 === newMigrationAppliedCount) {
-        this.logger.logMessage(
+        this.logger.logInfo(
           `Executing post-migrate script for migration: ${migrationName}`
         );
         this.scriptRunner.runPostScript(

@@ -77,25 +77,23 @@ export class TargetedPrismaMigrator<T extends string> {
       -1
     ) as T[];
 
-    this.logger.logMessage("Creating temp dir...");
+    this.logger.logVerbose("Creating temp dir...");
     await this.createTempDir();
 
-    this.logger.logMessage("Moving migrations files to temp dir...");
+    this.logger.logVerbose("Moving migrations files to temp dir...");
     await this.moveFilesToTempDir(filesToMove);
 
     try {
       PrismaCLI.migrateDeploy();
 
-      this.logger.logMessage(
+      this.logger.logVerbose(
         `All migrations to ${targetMigration} have been applied successfully!`
       );
     } finally {
-      this.logger.logMessage(
-        "Moving migrations files back to migrations dir..."
-      );
+      this.logger.logVerbose("Moving migrations files back to migrations dir...");
       await this.moveFilesBackToMigrationsDir(filesToMove);
 
-      this.logger.logMessage("Removing temp dir...");
+      this.logger.logVerbose("Removing temp dir...");
       await this.removeTempDir();
     }
   }
