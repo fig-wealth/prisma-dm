@@ -14,18 +14,25 @@ export const updateOrAddOutputInSchema = (
   }
 
   const generatorBlockContent = generatorBlockMatch[1];
+
+  const cleanedGeneratorBlockContent = generatorBlockContent
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .join("\n  ");
+
   let updatedGeneratorBlockContent: string;
 
-  if (/output\s*=\s*".*"/.test(generatorBlockContent)) {
-    updatedGeneratorBlockContent = generatorBlockContent.replace(
+  if (/output\s*=\s*".*"/.test(cleanedGeneratorBlockContent)) {
+    updatedGeneratorBlockContent = cleanedGeneratorBlockContent.replace(
       /output\s*=\s*".*"/,
       `output = "${newOutputValue}"`
     );
   } else {
-    updatedGeneratorBlockContent = `${generatorBlockContent.trim()}\n  output = "${newOutputValue}"`;
+    updatedGeneratorBlockContent = `${cleanedGeneratorBlockContent}\n  output = "${newOutputValue}"`;
   }
 
-  const updatedGeneratorBlock = `generator client {\n${updatedGeneratorBlockContent}\n}`;
+  const updatedGeneratorBlock = `generator client {\n  ${updatedGeneratorBlockContent}\n}`;
 
   const updatedSchema = schemaContent.replace(
     generatorRegex,
