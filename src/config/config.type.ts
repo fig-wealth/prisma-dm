@@ -1,6 +1,5 @@
 export type Config = {
-  scriptExt: string;
-  scriptExecutor: string;
+  execScriptCommand: string;
   migrationsDir: string;
   outputDir: string;
   tempDir: string;

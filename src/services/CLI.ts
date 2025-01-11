@@ -90,8 +90,8 @@ export class CLI<T extends string> {
         this.logger.logMessage(
           `Executing post-migrate script for migration: ${migrationName}`
         );
-        this.scriptRunner.run(
-          path.resolve(config.migrationsDir, migrationName, "post")
+        this.scriptRunner.runPostScript(
+          path.resolve(config.migrationsDir, migrationName)
         );
       }
     }
