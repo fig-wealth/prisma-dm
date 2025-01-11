@@ -11,9 +11,8 @@ export class Validator {
     const hasPrismaSchema = fs.existsSync(
       path.join(migrationPath, "schema.prisma")
     );
-    const hasPostScript = fs.existsSync(path.join(migrationPath, "post.ts"));
 
-    return isDir && hasPrismaSchema && hasPostScript;
+    return isDir && hasPrismaSchema;
   }
 
   isMigration(name: string) {
