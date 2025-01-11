@@ -8,14 +8,15 @@ import { PrismaCLI } from "../utils/classes/PrismaCLI";
 import { updateOrAddOutputInSchema } from "../utils/updateOrAddOutputInSchema";
 import { TargetedPrismaMigrator } from "./TargetedPrismaMigrator";
 import { ScriptRunner } from "./ScriptRunner";
-import { PrismaService } from "./PrismaService";
+import { DB } from "./DB";
 import { Logger } from "./Logger";
+import { MigrationModel } from "../types/MigrationModel";
 
 export class CLI<T extends string> {
   constructor(
     private readonly migrator: TargetedPrismaMigrator<T>,
     private readonly scriptRunner: ScriptRunner,
-    private readonly prisma: PrismaService,
+    private readonly db: DB,
     private readonly validator: Validator,
     private readonly logger: Logger
   ) {}
@@ -50,25 +51,39 @@ export class CLI<T extends string> {
     }
   }
 
-  async migrate({ to }: { to: T }) {
-    this.validator.validateMigrationName(to);
+  async migrate({ to }: { to?: T | undefined } = {}) {
+    if (to) {
+      this.validator.validateMigrationName(to);
+    }
+
     const config = getConfig();
     const migrationsDirPath = path.join(process.cwd(), config.migrationsDir);
-    const rawMigrations = fs.readdirSync(migrationsDirPath);
-    const migrations = rawMigrations.filter((m) =>
-      this.validator.isMigration(m)
+    const rawMigrations = fs
+      .readdirSync(migrationsDirPath)
+      .filter((m) => this.validator.isMigration(m));
+    const lastMigrationIndex = to
+      ? rawMigrations.indexOf(to)
+      : rawMigrations.length;
+    const migrations = rawMigrations.slice(0, lastMigrationIndex);
+    const dataMigrations = migrations.filter((m) =>
+      this.validator.isDataMigration(m)
     );
-    const dataMigrations = migrations.filter((m) => {
-      return this.validator.isDataMigration(m);
-    });
-    this.prisma.$connect();
+    await this.db.connect();
 
     for (const migrationName of dataMigrations) {
-      const migration = await this.prisma.getMigrationByName(migrationName);
-      const migrationAppliedCount = migration?.applied_steps_count ?? 0;
+      const prismaTableExists = await this.db.isPrismaMigrationsTableExists();
+      let migration: MigrationModel | null = null;
+
+      if (prismaTableExists) {
+        migration = await this.db.getMigrationByName(migrationName);
+      }
+
+      const migrationAppliedCount = prismaTableExists
+        ? migration?.applied_steps_count ?? 0
+        : 0;
 
       await this.migrator.migrateTo(migrationName as T);
-      const newMigration = await this.prisma.getMigrationByName(migrationName);
+      const newMigration = await this.db.getMigrationByName(migrationName);
       const newMigrationAppliedCount = newMigration?.applied_steps_count ?? 0;
 
       if (migrationAppliedCount + 1 === newMigrationAppliedCount) {
@@ -81,6 +96,10 @@ export class CLI<T extends string> {
       }
     }
 
-    this.prisma.$disconnect();
+    if (dataMigrations.at(-1) !== migrations.at(-1)) {
+      await this.migrator.migrateTo(migrations.at(-1) as T);
+    }
+
+    await this.db.disconnect();
   }
 }
