@@ -8,6 +8,7 @@ import { ScriptRunner } from "./services/ScriptRunner";
 import { TargetedPrismaMigrator } from "./services/TargetedPrismaMigrator";
 import { Validator } from "./services/Validator";
 import { Command } from "commander";
+import packageJson from "../package.json";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -28,27 +29,27 @@ function createCLI() {
 
 program
   .name("prisma-dm")
-  .description("CLI for Prisma data management")
-  .version("1.0.0");
+  .description("CLI for Prisma data migrations")
+  .version(packageJson.version);
 
 program
   .command("init")
-  .description("Initialize config file")
+  .description("Generate configuration file")
   .action(() => {
     CLI.init();
   });
 
 program
   .command("generate")
-  .description("Generate types")
+  .description("Generate types for data migrations by prisma schemas")
   .action(() => {
     createCLI().generate();
   });
 
 program
   .command("migrate")
-  .description("Data migration")
-  .option("--to <value>", "Target migration")
+  .description("Migrate to target migration with post scripts execution")
+  .option("--to <value>", "Target migration, default is the latest")
   .action((options) => {
     const toValue = options.to as string | undefined;
 
