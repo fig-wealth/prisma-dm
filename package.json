@@ -1,13 +1,13 @@
 {
   "name": "prisma-data-migrations",
   "version": "0.0.4",
-  "main": "dist/main.js",
+  "main": "dist/src/main.js",
   "scripts": {
     "generate-config-types": "npx json2ts config.schema.json > src/config/config.type.ts",
     "build": "tsc --build"
   },
   "bin": {
-    "prisma-dm": "dist/cli.js"
+    "prisma-dm": "dist/src/cli.js"
   },
   "repository": {
     "type": "git",
