@@ -1,9 +1,9 @@
 import fs from "fs-extra";
 import path from "path";
-import { Config } from "../config/config.type";
+import { ConfigSchema } from "../config/config.type";
 
 export class Validator {
-  constructor(private readonly config: Config) {}
+  constructor(private readonly config: ConfigSchema) {}
 
   isDataMigration(migrationName: string) {
     const migrationPath = path.join(this.config.migrationsDir, migrationName);

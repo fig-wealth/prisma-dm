@@ -1,7 +1,7 @@
-import { Config } from "../config/config.type";
+import { ConfigSchema } from "../config/config.type";
 
 export class Logger {
-  constructor(private readonly config: Config) {}
+  constructor(private readonly config: ConfigSchema) {}
 
   logInfo(message: string) {
     if (this.config.log === "info") {

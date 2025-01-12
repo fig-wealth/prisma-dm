@@ -1,11 +1,17 @@
-import { Config } from "./config.type";
+import schema from "../../config.schema.json";
+import Ajv from "ajv";
+import { ConfigSchema } from "./config.type";
 
-export const DEFAULT_CONFIG: Config = {
-  // $schema:
-  // "https://raw.githubusercontent.com/username/my-library/main/my-library.schema.json",
-  execScriptCommand: "tsx ${post}.ts",
-  outputDir: "../../../node_modules/prisma-data-migrations/migrations",
-  migrationsDir: "prisma/migrations",
-  tempDir: "prisma/.temp",
-  log: "info",
-};
+const ajv = new Ajv({ useDefaults: true });
+
+const validate = ajv.compile(schema);
+const defaultConfig: Record<string, any> = {};
+validate(defaultConfig);
+
+if (validate.errors) {
+  throw new Error(
+    "Invalid default configuration: " + JSON.stringify(validate.errors, null, 2)
+  );
+}
+
+export const DEFAULT_CONFIG = defaultConfig as ConfigSchema;
