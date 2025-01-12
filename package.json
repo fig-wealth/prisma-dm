@@ -3,7 +3,14 @@
   "version": "1.0.0",
   "main": "dist/src/main.js",
   "types": "dist/src/main.d.ts",
+  "files": [
+    "dist/",
+    "config.schema.json",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
+    "prepare": "npm run build",
     "generate-config-types": "npx json2ts config.schema.json > src/config/config.type.ts",
     "build": "tsc --build"
   },
