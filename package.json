@@ -1,7 +1,8 @@
 {
   "name": "prisma-data-migrations",
-  "version": "0.0.4",
+  "version": "1.0.0",
   "main": "dist/src/main.js",
+  "types": "dist/src/main.d.ts",
   "scripts": {
     "generate-config-types": "npx json2ts config.schema.json > src/config/config.type.ts",
     "build": "tsc --build"
@@ -19,7 +20,18 @@
     "url": "https://github.com/Softjey/prisma-data-migrations/issues"
   },
   "homepage": "https://github.com/Softjey/prisma-data-migrations#readme",
-  "description": "",
+  "description": "Enhances Prisma ORM with support for post-migration data scripts.",
+  "keywords": [
+    "prisma",
+    "data-migrations",
+    "orm",
+    "typescript",
+    "database",
+    "schema-migrations"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "devDependencies": {
     "json-schema-to-typescript": "^15.0.3",
     "@types/fs-extra": "^11.0.4",
