@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "pattern": "^(\\/|\\.?\\/|\\.\\.\\/|[^\\/]+).*$",
+      "description": "The schema version for this configuration file. Must be a valid schema version.",
+      "default": "./node_modules/prisma-data-migrations/config.schema.json"
+    },
+    "execScriptCommand": {
+      "type": "string",
+      "pattern": "\\$\\{post\\}",
+      "description": "The command to execute the script, must include the placeholder '${post}' and can have any file extension or none.",
+      "default": "tsx ${post}.ts"
+    },
+    "outputDir": {
+      "type": "string",
+      "pattern": "^(\\/|\\.?\\/|\\.\\.\\/|[^\\/]+).*$",
+      "description": "The output directory for the generated migrations. Must be a valid directory path.",
+      "default": "../../../node_modules/prisma-data-migrations/migrations"
+    },
+    "migrationsDir": {
+      "type": "string",
+      "pattern": "^(\\/|\\.?\\/|\\.\\.\\/|[^\\/]+).*$",
+      "description": "The directory where migrations are stored. Must be a valid directory path.",
+      "default": "prisma/migrations"
+    },
+    "tempDir": {
+      "type": "string",
+      "pattern": "^(\\/|\\.?\\/|\\.\\.\\/|[^\\/]+).*$",
+      "description": "Temporary directory for processing. Must be a valid directory path.",
+      "default": "prisma/.temp"
+    },
+    "log": {
+      "type": "string",
+      "enum": [
+        "none",
+        "info",
+        "verbose"
+      ],
+      "description": "Log level for the script, must be one of 'info', 'debug', or 'error'.",
+      "default": "info"
+    }
+  },
+  "required": [
+    "execScriptCommand",
+    "outputDir",
+    "migrationsDir",
+    "tempDir",
+    "log"
+  ],
+  "additionalProperties": false
+}
