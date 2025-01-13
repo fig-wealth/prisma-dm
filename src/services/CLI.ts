@@ -37,7 +37,7 @@ export class CLI<T extends string> {
     const migrationsDir = fs.readdirSync(migrationsDirPath);
 
     for (const migrationName of migrationsDir) {
-      if (this.validator.isDataMigration(migrationName)) {
+      if (this.validator.isMigrationWithPrismaSchema(migrationName)) {
         const migrationPath = path.join(migrationsDirPath, migrationName);
         const schemaPath = path.join(migrationPath, "schema.prisma");
         const outputPath = `${config.outputDir}/${migrationName}`;
@@ -98,7 +98,7 @@ export class CLI<T extends string> {
       : rawMigrations.length;
     const migrations = rawMigrations.slice(0, lastMigrationIndex);
     const dataMigrations = migrations.filter((m) =>
-      this.validator.isDataMigration(m)
+      this.validator.isMigrationWithPostScript(m)
     );
     await this.db.connect();
 

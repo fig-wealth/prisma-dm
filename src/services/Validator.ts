@@ -5,14 +5,23 @@ import { ConfigSchema } from "../config/config.type";
 export class Validator {
   constructor(private readonly config: ConfigSchema) {}
 
-  isDataMigration(migrationName: string) {
+  isMigrationWithPrismaSchema(migrationName: string) {
     const migrationPath = path.join(this.config.migrationsDir, migrationName);
-    const isDir = fs.lstatSync(migrationPath).isDirectory();
     const hasPrismaSchema = fs.existsSync(
       path.join(migrationPath, "schema.prisma")
     );
 
-    return isDir && hasPrismaSchema;
+    return this.isMigration(migrationName) && hasPrismaSchema;
+  }
+
+  isMigrationWithPostScript(migrationName: string) {
+    const migrationPath = path.join(this.config.migrationsDir, migrationName);
+    const files = fs.readdirSync(migrationPath);
+    const hasPostScript = files.some((file) =>
+      /^post(\.[a-zA-Z0-9]+)?$/.test(file)
+    );
+
+    return this.isMigration(migrationName) && hasPostScript;
   }
 
   isMigration(name: string) {
