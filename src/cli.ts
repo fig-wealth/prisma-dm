@@ -40,6 +40,25 @@ program
   });
 
 program
+  .command("merge:schema")
+  .description("Merge prisma schema folder to single schema file")
+  .option("--schema <value>", "Path to schema folder", "prisma/schema")
+  .option(
+    "--output <value>",
+    "Path to output schema file",
+    "prisma/schema.prisma"
+  )
+  .action((options) => {
+    const output = options.output as string;
+    const schema = options.schema as string;
+
+    createCLI().mergeSchema(
+      schema ?? "prisma/schema",
+      output ?? "prisma/schema.prisma"
+    );
+  });
+
+program
   .command("generate")
   .description("Generate types for data migrations by prisma schemas")
   .action(() => {
@@ -49,11 +68,12 @@ program
 program
   .command("migrate")
   .description("Migrate to target migration with post scripts execution")
-  .option("--to <value>", "Target migration, default is the latest")
-  .action((options) => {
-    const toValue = options.to as string | undefined;
+  .option("--to <value>", "Target migration", "latest")
+  .action(async (options) => {
+    const toOption = options.to as string | undefined;
+    const to = toOption === "latest" ? undefined : toOption;
 
-    createCLI().migrate({ to: toValue });
+    await createCLI().migrate({ to });
   });
 
 program.on("command:*", () => {
