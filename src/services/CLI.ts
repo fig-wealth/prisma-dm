@@ -49,6 +49,40 @@ export class CLI<T extends string> {
     }
   }
 
+  private getPrismaFilesFromDir(dirPath: string): string[] {
+    let prismaFiles: string[] = [];
+    const filesAndDirs = fs.readdirSync(dirPath);
+
+    filesAndDirs.forEach((item) => {
+      const fullPath = path.join(dirPath, item);
+      const stat = fs.statSync(fullPath);
+
+      if (stat.isDirectory()) {
+        prismaFiles = prismaFiles.concat(this.getPrismaFilesFromDir(fullPath));
+      } else if (stat.isFile() && item.endsWith(".prisma")) {
+        prismaFiles.push(fullPath);
+      }
+    });
+
+    return prismaFiles;
+  }
+
+  mergeSchema(rawSchemaFolderPath: string, outputPath: string) {
+    const schemaFolderPath = path.join(process.cwd(), rawSchemaFolderPath);
+
+    this.logger.logInfo("Merging schema files");
+    const prismaFiles = this.getPrismaFilesFromDir(schemaFolderPath);
+    let mergedSchema = "";
+
+    prismaFiles.forEach((file) => {
+      const fileContent = fs.readFileSync(file, "utf-8");
+      mergedSchema += `//--- ${path.basename(file)} ---\n${fileContent}\n`;
+    });
+
+    fs.writeFileSync(outputPath, mergedSchema);
+    this.logger.logInfo("Schema files merged");
+  }
+
   async migrate({ to }: { to?: T | undefined } = {}) {
     if (to) {
       this.validator.validateMigrationName(to);
@@ -77,7 +111,7 @@ export class CLI<T extends string> {
       }
 
       const migrationAppliedCount = prismaTableExists
-        ? migration?.applied_steps_count ?? 0
+        ? (migration?.applied_steps_count ?? 0)
         : 0;
 
       await this.migrator.migrateTo(migrationName as T);
