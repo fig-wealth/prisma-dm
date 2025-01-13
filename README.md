@@ -40,14 +40,15 @@ Usage: prisma-dm [options] [command]
 CLI for Prisma data migrations
 
 Options:
-  -V, --version      output the version number
-  -h, --help         display help for command
+  -V, --version           output the version number
+  -h, --help              display help for command
 
 Commands:
-  init               Initialize config file
-  generate           Generate types for data migrations by prisma schemas
-  migrate [options]  Migrate to target migration with post scripts execution
-  help [command]     display help for command
+  init                    Generate configuration file
+  merge:schema [options]  Merge prisma schema folder to single schema file
+  generate                Generate types for data migrations by prisma schemas
+  migrate [options]       Migrate to target migration with post scripts execution
+  help [command]          display help for command
 ```
 
 ### Quick Start
@@ -61,17 +62,30 @@ Commands:
 
    This generates a default configuration file (`prisma-dm.config.json`) in the root of your project.
 
-2. **Add `schema.prisma` to Migration Folders**:
+2. **Merge Prisma Schema** (Optional):
+   If you use `prismaSchemaFolder` feature, you can merge all prisma files into a single schema file for easier management within the migration folder.
+
+   Example:
+
+   ```bash
+   npx prisma-dm merge:schema --schema prisma/schema --output prisma/schema.prisma
+   ```
+
+   This merges all schemas in the `prisma/schema` folder into a single `schema.prisma` file.
+
+3. **Add `schema.prisma` to Migration Folders** (Optional):
    Place the `schema.prisma` file in the corresponding migration folder alongside `migration.sql`. This file must match the schema state after applying the Prisma migration.
 
-3. **Generate Types**:
+   ⚠️ **Note**: You can skip copying the `schema.prisma` file and generating types if you do not need the Prisma Client. Instead, you can simply add the post-migration script directly to the migration folder.
+
+4. **Generate Types**:
    Run the `generate` command to create TypeScript types for your data migrations based on your schemas:
 
    ```bash
    npx prisma-dm generate
    ```
 
-4. **Create Post-Migration Script**:
+5. **Create Post-Migration Script**:
    Create a post-migration script in the migration folder. The script must be named `post` and can have any file extension (e.g., `.ts`, `.js`, `.sh`). Example:
 
    ```typescript
@@ -110,11 +124,17 @@ Commands:
    ├── prisma-dm.config.json
    ```
 
-5. **Run Migration**:
+6. **Run Migration**:
    Execute the migration and post-migration script using:
 
    ```bash
    npx prisma-dm migrate
+   ```
+
+   ⚠️ **Note**: You can use the `--to` flag to migrate to a specific migration version (by default, it migrates to `latest`). Example:
+
+   ```bash
+   npx prisma-dm migrate --to 20250108201031_add_user_name
    ```
 
 ## Configuration
@@ -166,4 +186,4 @@ We welcome contributions! Visit the [GitHub Repository](https://github.com/Softj
 
 ## License
 
-This project is open-source under the MIT License.
+This project is open-source under the ISC License.
