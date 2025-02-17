@@ -31,7 +31,7 @@ export class Validator {
     );
     const migrationsDir = fs.readdirSync(migrationsDirPath);
 
-    return name !== "migration_lock.toml" && migrationsDir.includes(name);
+    return name !== "migration_lock.toml" && name !== ".DS_STORE" && migrationsDir.includes(name);
   }
 
   validateMigrationName(name: string) {
