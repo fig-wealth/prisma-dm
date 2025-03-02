@@ -170,7 +170,7 @@ The configuration file (`prisma-dm.config.json`) allows customization of the lib
 
 - **Database support**:
 
-  - For now works only with PostgreSQL and PostgreSQL-compatible databases.
+  - Fully tested on PostgreSQL and for now will work only with PostgreSQL and PostgreSQL-compatible databases.
   - Other databases will require additional logic; contributions are welcome.
 
 - **Future improvements**:
