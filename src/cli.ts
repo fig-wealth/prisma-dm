@@ -68,12 +68,16 @@ program
 program
   .command("migrate")
   .description("Migrate to target migration with post scripts execution")
-  .option("--to <value>", "Target migration", "latest")
+  .option("--to <value>", "Target migration")
+  .option("--upto <value>", "Target migration = Run all migrations up to (and including) this one")
   .action(async (options) => {
-    const toOption = options.to as string | undefined;
-    const to = toOption === "latest" ? undefined : toOption;
+    if(options.to && options.upto) {
+      throw new Error('options "to" and "upto" can not be used together');
+    }
+    const toOption: string | undefined = options.to ?? options.upto;
+    const targetMigration = toOption === "latest" ? undefined : toOption;
 
-    await createCLI().migrate({ to });
+    await createCLI().migrate({ targetMigration, includeTargetMigration: !options.to });
   });
 
 program.on("command:*", () => {
