@@ -27,6 +27,10 @@ export interface ConfigSchema {
    */
   tempDir: string;
   /**
+   * The filename for prisma schema files within migration directories.
+   */
+  migrationSchemaFileName: string;
+  /**
    * Log level for the script, must be one of 'info', 'debug', or 'error'.
    */
   log: "none" | "info" | "verbose";

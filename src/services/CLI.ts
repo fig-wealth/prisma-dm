@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs-extra";
 import { CONFIG_FILE_NAME } from "../config/CONFIG_FILE_NAME";
-import { getConfig } from "../config/getConfig";
+import {configLoader} from "../config/getConfig";
 import { DEFAULT_CONFIG } from "../config/DEFAULT_CONFIG";
 import { Validator } from "./Validator";
 import { PrismaCLI } from "../utils/classes/PrismaCLI";
@@ -32,14 +32,14 @@ export class CLI<T extends string> {
   }
 
   generate() {
-    const config = getConfig();
+    const config = configLoader.getConfig();
     const migrationsDirPath = path.join(process.cwd(), config.migrationsDir);
     const migrationsDir = fs.readdirSync(migrationsDirPath);
 
     for (const migrationName of migrationsDir) {
       if (this.validator.isMigrationWithPrismaSchema(migrationName)) {
         const migrationPath = path.join(migrationsDirPath, migrationName);
-        const schemaPath = path.join(migrationPath, "schema.prisma");
+        const schemaPath = path.join(migrationPath, config.migrationSchemaFileName);
         const outputPath = `${config.outputDir}/${migrationName}`;
 
         this.logger.logInfo(`Generating types for migration: ${migrationName}`);
@@ -83,20 +83,21 @@ export class CLI<T extends string> {
     this.logger.logInfo("Schema files merged");
   }
 
-  async migrate({ to }: { to?: T | undefined } = {}) {
-    if (to) {
-      this.validator.validateMigrationName(to);
+  async migrate({ targetMigration, includeTargetMigration }: { targetMigration?: T | undefined, includeTargetMigration: boolean }) {
+    if (targetMigration) {
+      this.validator.validateMigrationName(targetMigration);
     }
 
-    const config = getConfig();
+    const config = configLoader.getConfig();
     const migrationsDirPath = path.join(process.cwd(), config.migrationsDir);
     const rawMigrations = fs
       .readdirSync(migrationsDirPath)
       .filter((m) => this.validator.isMigration(m));
-    const lastMigrationIndex = to
-      ? rawMigrations.indexOf(to)
+    const lastMigrationIndex = targetMigration
+      ? rawMigrations.indexOf(targetMigration)
       : rawMigrations.length;
-    const migrations = rawMigrations.slice(0, lastMigrationIndex);
+
+    const migrations = rawMigrations.slice(0, lastMigrationIndex + (includeTargetMigration ? 1 : 0));
     const dataMigrations = migrations.filter((m) =>
       this.validator.isMigrationWithPostScript(m)
     );

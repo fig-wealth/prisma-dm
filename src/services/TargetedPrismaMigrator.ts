@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs-extra";
 import { ConfigSchema } from "../config/config.type";
-import { getConfig } from "../config/getConfig";
+import {configLoader} from "../config/getConfig";
 import { PrismaCLI } from "../utils/classes/PrismaCLI";
 import { Logger } from "./Logger";
 
@@ -11,7 +11,7 @@ export class TargetedPrismaMigrator<T extends string> {
   private readonly config: ConfigSchema;
 
   constructor(private readonly logger: Logger) {
-    this.config = getConfig();
+    this.config = configLoader.getConfig();
   }
 
   private createTempDir() {

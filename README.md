@@ -77,6 +77,7 @@ Commands:
    Place the `schema.prisma` file in the corresponding migration folder alongside `migration.sql`. This file must match the schema state after applying the Prisma migration.
 
    ⚠️ **Note**: You can skip copying the `schema.prisma` file and generating types if you do not need the Prisma Client. Instead, you can simply add the post-migration script directly to the migration folder.
+   ⚠️ **Note**: You can change the default `schema.prisma` filename by using the `migrationSchemaFileName` key in the config.
 
 4. **Generate Types**:
    Run the `generate` command to create TypeScript types for your data migrations based on your schemas:
@@ -130,11 +131,20 @@ Commands:
    ```bash
    npx prisma-dm migrate
    ```
+   (by default, it migrates to `latest`)
 
-   ⚠️ **Note**: You can use the `--to` flag to migrate to a specific migration version (by default, it migrates to `latest`). Example:
+   ⚠️ **Note**: You can use the `--to` flag to migrate to a specific migration version (not including the migration 
+   passed. Example:
 
    ```bash
    npx prisma-dm migrate --to 20250108201031_add_user_name
+   ```
+
+   ⚠️ **Note**: You can use the `--upto` flag to migrate to a specific migration version (including the one passed) (by
+   default, it migrates to `latest`). Example:
+
+   ```bash
+   npx prisma-dm migrate --upto 20250108201031_add_user_name
    ```
 
 ## Configuration
@@ -151,6 +161,9 @@ The configuration file (`prisma-dm.config.json`) allows customization of the lib
 - **`migrationsDir`**: Directory containing Prisma migrations. Default: `prisma/migrations`.
 
 - **`tempDir`**: Temporary directory for moving migration folders during execution. Default: `prisma/.temp`.
+- 
+- **`migrationSchemaFileName`**: The filename for prisma schema files within migration directories. Default: `schema.
+  prisma`.
 
 - **`log`**: Logging level (`none`, `info`, `verbose`). Default: `info`.
 

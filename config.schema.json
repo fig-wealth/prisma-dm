@@ -32,6 +32,12 @@
       "description": "Temporary directory for processing. Must be a valid directory path.",
       "default": "prisma/.temp"
     },
+    "migrationSchemaFileName": {
+      "type": "string",
+      "pattern": "^[^\\s]+\\.[^\\s]+$",
+      "description": "The filename for prisma schema files within migration directories. Defaults to schema.prisma",
+      "default": "schema.prisma"
+    },
     "log": {
       "type": "string",
       "enum": [

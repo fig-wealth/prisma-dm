@@ -8,7 +8,7 @@ export class Validator {
   isMigrationWithPrismaSchema(migrationName: string) {
     const migrationPath = path.join(this.config.migrationsDir, migrationName);
     const hasPrismaSchema = fs.existsSync(
-      path.join(migrationPath, "schema.prisma")
+      path.join(migrationPath, this.config.migrationSchemaFileName)
     );
 
     return this.isMigration(migrationName) && hasPrismaSchema;
@@ -31,7 +31,7 @@ export class Validator {
     );
     const migrationsDir = fs.readdirSync(migrationsDirPath);
 
-    return name !== "migration_lock.toml" && name !== ".DS_STORE" && migrationsDir.includes(name);
+    return name !== "migration_lock.toml" && name !== ".DS_Store" && migrationsDir.includes(name);
   }
 
   validateMigrationName(name: string) {
