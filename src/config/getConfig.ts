@@ -6,22 +6,29 @@ import schema from "../../config.schema.json";
 import Ajv from "ajv";
 import {DEFAULT_CONFIG} from "./DEFAULT_CONFIG";
 
-export function getConfig(): ConfigSchema {
-  try {
+
+class ConfigLoader {
+  private readonly config: ConfigSchema;
+
+  constructor() {
     const configFilePath = path.join(process.cwd(), CONFIG_FILE_NAME);
     let parsedConfig = {};
+    let file: string;
     try {
-      const file = fs.readFileSync(configFilePath, "utf-8");
-      parsedConfig = JSON.parse(file);
+      file = fs.readFileSync(configFilePath, "utf-8");
     } catch (error) {
-      if (error.code === "ENOENT") {
-        console.info(`No config file ${CONFIG_FILE_NAME} found, using defaults`)
-      }else {
-        throw new Error(
-          "Could not read config file"
-        );
+      console.info(`No config file found, falling back to default config.`);
+    }
+
+    if(file !== undefined) {
+      try {
+        parsedConfig = JSON.parse(file);
+      } catch (error) {
+        console.error(`Failed to parse config file: ${error.message}, falling back to default config.`);
+        throw new Error('Failed to parse config file')
       }
     }
+
     const config: ConfigSchema = {
       ...DEFAULT_CONFIG,
       ...parsedConfig
@@ -35,18 +42,16 @@ export function getConfig(): ConfigSchema {
       throw new Error("Configuration validation failed.");
     }
 
-    return {
+    this.config = {
       migrationsDir: path.join(process.cwd(), config.migrationsDir),
       tempDir: path.join(process.cwd(), config.tempDir),
       ...config,
     };
-  } catch (error) {
-    if (error.code === "ENOENT") {
-      throw new Error(
-        "Config file not found. Run `npx prisma-dm init` to create one."
-      );
-    }
+  }
 
-    throw error;
+  getConfig(): ConfigSchema {
+    return this.config;
   }
 }
+
+export const configLoader = new ConfigLoader()

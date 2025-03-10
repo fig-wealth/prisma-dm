@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs-extra";
 import { CONFIG_FILE_NAME } from "../config/CONFIG_FILE_NAME";
-import { getConfig } from "../config/getConfig";
+import {configLoader} from "../config/getConfig";
 import { DEFAULT_CONFIG } from "../config/DEFAULT_CONFIG";
 import { Validator } from "./Validator";
 import { PrismaCLI } from "../utils/classes/PrismaCLI";
@@ -32,7 +32,7 @@ export class CLI<T extends string> {
   }
 
   generate() {
-    const config = getConfig();
+    const config = configLoader.getConfig();
     const migrationsDirPath = path.join(process.cwd(), config.migrationsDir);
     const migrationsDir = fs.readdirSync(migrationsDirPath);
 
@@ -88,7 +88,7 @@ export class CLI<T extends string> {
       this.validator.validateMigrationName(targetMigration);
     }
 
-    const config = getConfig();
+    const config = configLoader.getConfig();
     const migrationsDirPath = path.join(process.cwd(), config.migrationsDir);
     const rawMigrations = fs
       .readdirSync(migrationsDirPath)

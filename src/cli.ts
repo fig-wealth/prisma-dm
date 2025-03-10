@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { getConfig } from "./config/getConfig";
+import {configLoader} from "./config/getConfig";
 import { CLI } from "./services/CLI";
 import { Logger } from "./services/Logger";
 import { DB } from "./services/DB";
@@ -16,7 +16,7 @@ dotenv.config();
 const program = new Command();
 
 function createCLI() {
-  const config = getConfig();
+  const config = configLoader.getConfig();
   const logger = new Logger(config);
   const prisma = new DB();
   const validator = new Validator(config);
