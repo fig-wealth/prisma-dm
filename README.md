@@ -133,15 +133,13 @@ Commands:
    ```
    (by default, it migrates to `latest`)
 
-   ⚠️ **Note**: You can use the `--to` flag to migrate to a specific migration version (not including the migration 
-   passed. Example:
+   ⚠️ **Note**: You can use the `--to` flag to migrate to a specific migration version (not including the migration passed). Example:
 
    ```bash
    npx prisma-dm migrate --to 20250108201031_add_user_name
    ```
 
-   ⚠️ **Note**: You can use the `--upto` flag to migrate to a specific migration version (including the one passed) (by
-   default, it migrates to `latest`). Example:
+   ⚠️ **Note**: You can use the `--upto` flag to migrate to a specific migration version (including the one passed). Example:
 
    ```bash
    npx prisma-dm migrate --upto 20250108201031_add_user_name
@@ -161,9 +159,8 @@ The configuration file (`prisma-dm.config.json`) allows customization of the lib
 - **`migrationsDir`**: Directory containing Prisma migrations. Default: `prisma/migrations`.
 
 - **`tempDir`**: Temporary directory for moving migration folders during execution. Default: `prisma/.temp`.
-- 
-- **`migrationSchemaFileName`**: The filename for prisma schema files within migration directories. Default: `schema.
-  prisma`.
+
+- **`migrationSchemaFileName`**: The filename for prisma schema files within migration directories. Default: `schema.prisma`.
 
 - **`log`**: Logging level (`none`, `info`, `verbose`). Default: `info`.
 
