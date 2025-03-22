@@ -4,11 +4,10 @@ import { ConfigSchema } from "./config.type";
 import { CONFIG_FILE_NAME } from "./CONFIG_FILE_NAME";
 import schema from "../../config.schema.json";
 import Ajv from "ajv";
-import {DEFAULT_CONFIG} from "./DEFAULT_CONFIG";
+import { DEFAULT_CONFIG } from "./DEFAULT_CONFIG";
 
-
-class ConfigLoader {
-  private readonly config: ConfigSchema;
+export class ConfigLoader {
+  readonly #config: ConfigSchema;
 
   constructor() {
     const configFilePath = path.join(process.cwd(), CONFIG_FILE_NAME);
@@ -20,18 +19,20 @@ class ConfigLoader {
       console.info(`No config file found, falling back to default config.`);
     }
 
-    if(file !== undefined) {
+    if (file !== undefined) {
       try {
         parsedConfig = JSON.parse(file);
       } catch (error) {
-        console.error(`Failed to parse config file: ${error.message}, falling back to default config.`);
-        throw new Error('Failed to parse config file')
+        console.error(
+          `Failed to parse config file: ${error.message}, falling back to default config.`,
+        );
+        throw new Error("Failed to parse config file");
       }
     }
 
     const config: ConfigSchema = {
       ...DEFAULT_CONFIG,
-      ...parsedConfig
+      ...parsedConfig,
     };
 
     const ajv = new Ajv();
@@ -42,16 +43,14 @@ class ConfigLoader {
       throw new Error("Configuration validation failed.");
     }
 
-    this.config = {
+    this.#config = {
       migrationsDir: path.join(process.cwd(), config.migrationsDir),
       tempDir: path.join(process.cwd(), config.tempDir),
       ...config,
     };
   }
 
-  getConfig(): ConfigSchema {
-    return this.config;
+  get config() {
+    return this.#config;
   }
 }
-
-export const configLoader = new ConfigLoader()

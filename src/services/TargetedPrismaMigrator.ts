@@ -1,18 +1,16 @@
 import path from "path";
 import fs from "fs-extra";
 import { ConfigSchema } from "../config/config.type";
-import {configLoader} from "../config/getConfig";
 import { PrismaCLI } from "../utils/classes/PrismaCLI";
 import { Logger } from "./Logger";
 
 type MigrationDirFile<T extends string> = T | "migration_lock.toml";
 
 export class TargetedPrismaMigrator<T extends string> {
-  private readonly config: ConfigSchema;
-
-  constructor(private readonly logger: Logger) {
-    this.config = configLoader.getConfig();
-  }
+  constructor(
+    private readonly logger: Logger,
+    private readonly config: ConfigSchema,
+  ) {}
 
   private createTempDir() {
     return fs.mkdir(this.config.tempDir, { recursive: true }).catch((e) => {
@@ -57,9 +55,7 @@ export class TargetedPrismaMigrator<T extends string> {
         await fs.copy(src, dest);
         await fs.rm(src, { recursive: true, force: true });
       } catch (e) {
-        throw new Error(
-          `Error moving file ${file} back to migrations dir: ${e.message}`
-        );
+        throw new Error(`Error moving file ${file} back to migrations dir: ${e.message}`);
       }
     }
   }
@@ -72,10 +68,7 @@ export class TargetedPrismaMigrator<T extends string> {
       throw new Error(`Migration ${targetMigration} not found`);
     }
 
-    const filesToMove = migrationFiles.slice(
-      indexOfTargetMigration + 1,
-      -1
-    ) as T[];
+    const filesToMove = migrationFiles.slice(indexOfTargetMigration + 1, -1) as T[];
 
     this.logger.logVerbose("Creating temp dir...");
     await this.createTempDir();
@@ -87,7 +80,7 @@ export class TargetedPrismaMigrator<T extends string> {
       PrismaCLI.migrateDeploy();
 
       this.logger.logVerbose(
-        `All migrations to ${targetMigration} have been applied successfully!`
+        `All migrations to ${targetMigration} have been applied successfully!`,
       );
     } finally {
       this.logger.logVerbose("Moving migrations files back to migrations dir...");

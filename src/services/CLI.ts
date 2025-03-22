@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs-extra";
 import { CONFIG_FILE_NAME } from "../config/CONFIG_FILE_NAME";
-import {configLoader} from "../config/getConfig";
+import { ConfigSchema } from "../config/config.type";
 import { DEFAULT_CONFIG } from "../config/DEFAULT_CONFIG";
 import { Validator } from "./Validator";
 import { PrismaCLI } from "../utils/classes/PrismaCLI";
@@ -18,8 +18,13 @@ export class CLI<T extends string> {
     private readonly scriptRunner: ScriptRunner,
     private readonly db: DB,
     private readonly validator: Validator,
-    private readonly logger: Logger
+    private readonly logger: Logger,
+    private readonly config: ConfigSchema,
   ) {}
+
+  private getMigrationPath(migrationName: T) {
+    return path.resolve(this.config.migrationsDir, migrationName);
+  }
 
   static init() {
     const configFilePath = path.join(process.cwd(), CONFIG_FILE_NAME);
@@ -32,15 +37,14 @@ export class CLI<T extends string> {
   }
 
   generate() {
-    const config = configLoader.getConfig();
-    const migrationsDirPath = path.join(process.cwd(), config.migrationsDir);
+    const migrationsDirPath = path.join(process.cwd(), this.config.migrationsDir);
     const migrationsDir = fs.readdirSync(migrationsDirPath);
 
     for (const migrationName of migrationsDir) {
       if (this.validator.isMigrationWithPrismaSchema(migrationName)) {
         const migrationPath = path.join(migrationsDirPath, migrationName);
-        const schemaPath = path.join(migrationPath, config.migrationSchemaFileName);
-        const outputPath = `${config.outputDir}/${migrationName}`;
+        const schemaPath = path.join(migrationPath, this.config.migrationSchemaFileName);
+        const outputPath = `${this.config.outputDir}/${migrationName}`;
 
         this.logger.logInfo(`Generating types for migration: ${migrationName}`);
         updateOrAddOutputInSchema(schemaPath, outputPath);
@@ -83,13 +87,18 @@ export class CLI<T extends string> {
     this.logger.logInfo("Schema files merged");
   }
 
-  async migrate({ targetMigration, includeTargetMigration }: { targetMigration?: T | undefined, includeTargetMigration: boolean }) {
+  async migrate({
+    targetMigration,
+    includeTargetMigration,
+  }: {
+    targetMigration?: T | undefined;
+    includeTargetMigration: boolean;
+  }) {
     if (targetMigration) {
       this.validator.validateMigrationName(targetMigration);
     }
 
-    const config = configLoader.getConfig();
-    const migrationsDirPath = path.join(process.cwd(), config.migrationsDir);
+    const migrationsDirPath = path.join(process.cwd(), this.config.migrationsDir);
     const rawMigrations = fs
       .readdirSync(migrationsDirPath)
       .filter((m) => this.validator.isMigration(m));
@@ -97,13 +106,14 @@ export class CLI<T extends string> {
       ? rawMigrations.indexOf(targetMigration)
       : rawMigrations.length;
 
-    const migrations = rawMigrations.slice(0, lastMigrationIndex + (includeTargetMigration ? 1 : 0));
-    const dataMigrations = migrations.filter((m) =>
-      this.validator.isMigrationWithPostScript(m)
+    const migrations = rawMigrations.slice(
+      0,
+      lastMigrationIndex + (includeTargetMigration ? 1 : 0),
     );
+    const dataMigrations = migrations.filter((m) => this.validator.isMigrationWithPostScript(m));
     await this.db.connect();
 
-    for (const migrationName of dataMigrations) {
+    for (const migrationName of dataMigrations as T[]) {
       const prismaTableExists = await this.db.isPrismaMigrationsTableExists();
       let migration: MigrationModel | null = null;
 
@@ -111,21 +121,15 @@ export class CLI<T extends string> {
         migration = await this.db.getMigrationByName(migrationName);
       }
 
-      const migrationAppliedCount = prismaTableExists
-        ? (migration?.applied_steps_count ?? 0)
-        : 0;
+      const migrationAppliedCount = prismaTableExists ? (migration?.applied_steps_count ?? 0) : 0;
 
-      await this.migrator.migrateTo(migrationName as T);
+      await this.migrator.migrateTo(migrationName);
       const newMigration = await this.db.getMigrationByName(migrationName);
       const newMigrationAppliedCount = newMigration?.applied_steps_count ?? 0;
 
       if (migrationAppliedCount + 1 === newMigrationAppliedCount) {
-        this.logger.logInfo(
-          `Executing post-migrate script for migration: ${migrationName}`
-        );
-        this.scriptRunner.runPostScript(
-          path.resolve(config.migrationsDir, migrationName)
-        );
+        this.logger.logInfo(`Executing post-migrate script for migration: ${migrationName}`);
+        this.scriptRunner.runPostScript(this.getMigrationPath(migrationName));
       }
     }
 
@@ -134,5 +138,15 @@ export class CLI<T extends string> {
     }
 
     await this.db.disconnect();
+  }
+
+  runPostScript(migrationName: T) {
+    this.validator.validateMigrationName(migrationName);
+
+    if (!this.validator.isMigrationWithPostScript(migrationName)) {
+      throw new Error(`Migration ${migrationName} does not have a post script`);
+    }
+
+    this.scriptRunner.runPostScript(this.getMigrationPath(migrationName));
   }
 }
