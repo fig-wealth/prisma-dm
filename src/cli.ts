@@ -78,7 +78,9 @@ program
 
 program
   .command("run:postscript")
-  .description("Run a specific data migration post script")
+  .description(
+    "Run a specific data migration post script (useful for executing failed post scripts during migration)",
+  )
   .option("-m, --migration <value>", "Name of the migration")
   .action((options) => {
     if (!options.migration) {
