@@ -40,15 +40,16 @@ Usage: prisma-dm [options] [command]
 CLI for Prisma data migrations
 
 Options:
-  -V, --version           output the version number
-  -h, --help              display help for command
+  -V, --version             output the version number
+  -h, --help                display help for command
 
 Commands:
-  init                    Generate configuration file
-  merge:schema [options]  Merge prisma schema folder to single schema file
-  generate                Generate types for data migrations by prisma schemas
-  migrate [options]       Migrate to target migration with post scripts execution
-  help [command]          display help for command
+  init                      Generate configuration file
+  merge:schema [options]    Merge prisma schema folder to single schema file
+  generate                  Generate types for data migrations by prisma schemas
+  migrate [options]         Migrate to target migration with post scripts execution
+  run:postscript [options]  Run a specific data migration post script manually (particularly useful when a post script fails during migration, allowing you to reapply it after fixing the issue)
+  help [command]            display help for command
 ```
 
 ### Quick Start
@@ -111,6 +112,7 @@ Commands:
 
    - Always wrap your logic in a transaction to ensure atomic operations.
    - If the post script fails, you must manually reapply it after resolving the issue.
+   - To simplify manual reapplication you can use the `run:postscript` command.
 
    After completing this step, your directory structure should look like this:
 
@@ -131,6 +133,7 @@ Commands:
    ```bash
    npx prisma-dm migrate
    ```
+
    (by default, it migrates to `latest`)
 
    ⚠️ **Note**: You can use the `--to` flag to migrate to a specific migration version (not including the migration passed). Example:
@@ -144,6 +147,17 @@ Commands:
    ```bash
    npx prisma-dm migrate --upto 20250108201031_add_user_name
    ```
+
+7. **Reapplying Failed Post Scripts** (If migration fails):
+
+   - If a migration fails due to an error in the post script, you need to manually fix the issue and reapply the post script.
+   - To reapply a specific post script, use the `run:postscript` command with the `-m` flag, specifying the migration folder name:
+
+   ```bash
+   npx prisma-dm run:postscript -m 20250108201031_add_user_name
+   ```
+
+   This ensures that only the failed post script is executed after addressing the issue without reverting the already applied schema migration.
 
 ## Configuration
 
@@ -172,6 +186,7 @@ The configuration file (`prisma-dm.config.json`) allows customization of the lib
 
   - Post scripts are not included in the same transaction as schema migrations.
   - If a post script fails, you will need to manually reapply it after resolving the issue.
+  - To simplify manual reapplication you can use the `run:postscript` command.
 
 - **Development status**:
 
