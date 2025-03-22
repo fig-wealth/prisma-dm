@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { ConfigLoader } from "./config/getConfig";
+import { ConfigLoader } from "./config/ConfigLoader";
 import { CLI } from "./services/CLI";
 import { Logger } from "./services/Logger";
 import { DB } from "./services/DB";
