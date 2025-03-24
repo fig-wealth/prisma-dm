@@ -9,6 +9,7 @@ export abstract class PrismaCLI {
   }
 
   static migrateDeploy() {
-    execSync("npx prisma migrate deploy", { stdio: "inherit" });
+    const schemaFlag = `--schema=./src/lib/schema`;
+    (0, child_process_1.execSync)(`npx prisma migrate deploy ${schemaFlag}`, { stdio: "inherit" });
   }
 }
